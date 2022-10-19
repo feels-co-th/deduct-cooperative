@@ -12,6 +12,7 @@ class cooperativeService:
         self.dest_before_balance = kwargs.get("dest_before_balance")
         self.coopUserId = kwargs.get("coopUserId")
         self.userId = kwargs.get("userId")
+        self.conn = kwargs.get('conn')
 
     def getIdAccountCoop(self):
         records = models.cooperativeModel(
@@ -22,6 +23,7 @@ class cooperativeService:
 
     def getUserCoop(self):
         records = models.cooperativeModel(
+            conn=self.conn,
             dburl=self.dburl,
             userId=self.userId
         ).getCoopUser()
@@ -37,6 +39,7 @@ class cooperativeService:
 
     def deduct(self):
         models.cooperativeModel(
+            conn=self.conn,
             dburl=self.dburl,
             coopAccountId = self.coopAccountId,
             fee = self.fee  
@@ -44,6 +47,7 @@ class cooperativeService:
 
     def accountTransaction(self):
         models.cooperativeModel(
+            conn=self.conn,
             dburl=self.dburl,
             coopAccountId = self.coopAccountId,
             fee = self.fee,

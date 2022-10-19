@@ -8,6 +8,19 @@ class MainProcess:
         self.fee = 20
         self.List = []
         self.today = datetime.date.today()
+        self.dburl = config.Config.COOPERATIVE_DB_URL
+
+    def connect(self):
+        self.engine = create_engine(self.dburl)
+        self.conn = self.engine.connect()
+        self.trans = self.conn.begin()
+        self.isLocalConnect = True
+
+    def close(self):
+        self.conn.close()
+        self.trans.close()
+        self.engine.dispose()
+
     def process(self):
         recordAccountId = services.cooperativeService(
             dburl = config.Config.COOPERATIVE_DB_URL,
@@ -20,37 +33,43 @@ class MainProcess:
             coopUserId = recordAccountId['user_id']
             balanceInAccount = recordAccountId['balance']
             allList = services.cooperativeService(
-                dburl = config.Config.COOPERATIVE_DB_URL, 
+                dburl = config.Config.COOPERATIVE_DB_URL,
                 coopAccountId = coopAccountId,
                 fee = self.fee
                 ).listCoop()
             citizenList = []
             nameList = []
             for data in allList:
+                self.connect()
                 if data['user_id'] is None:
                     user = services.cooperativeService(
+                    conn=self.conn,
                     dburl = config.Config.COOPERATIVE_DB_URL,
                     userId = data['account_term_id']
                     ).getUserCoop()
                 else:
                     user = services.cooperativeService(
+                    conn=self.conn,
                     dburl = config.Config.COOPERATIVE_DB_URL,
                     userId = data['user_id']
                     ).getUserCoop()
                 citizenList.append(user['personal_id'])
                 nameList.append(user['first_name'] + " " + user['last_name'])
                 services.cooperativeService(
+                    conn=self.conn,
                     dburl = config.Config.COOPERATIVE_DB_URL,
                     coopAccountId = data['id'],
                     fee = self.fee
                     ).deduct()
                 services.cooperativeService(
+                    conn=self.conn,
                     dburl = config.Config.COOPERATIVE_DB_URL,
                     coopAccountId = data['id'],
                     fee = self.fee,
                     dest_before_balance = data['balance'],
                     citizenId = self.citizenId
                     ).accountTransaction()
+                self.close()
             count = len(allList)
             coopFund = balanceInAccount + (count * self.fee)
             infomation =[{ 
@@ -70,4 +89,3 @@ class MainProcess:
             print("complete",datetime.datetime.now())
 if __name__ == "__main__":
     MainProcess().process()
-  

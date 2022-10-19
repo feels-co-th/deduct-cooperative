@@ -12,7 +12,6 @@ class cooperativeModel:
         self.now = datetime.datetime.now()
         self.userId = kwargs.get("userId")
         self.autoCommit = False
-        self.data = kwargs.get('data')
         self.conn = kwargs.get('conn')
 
     def connect(self):
@@ -48,7 +47,7 @@ class cooperativeModel:
             AND status = 'enable'
         """
         result = conn.execute(
-            text(sql).execution_options(autocommit=True),
+            text(sql).execution_options(autocommit=self.autoCommit),
             params
         )
         records = result.fetchone()
@@ -70,12 +69,12 @@ class cooperativeModel:
             AND balance > :fee
         """
         result = conn.execute(
-            text(sql).execution_options(autocommit=True),
+            text(sql).execution_options(autocommit=self.autoCommit),
             params
         )
         records = result.fetchall()
         return records
-    
+
     def getCoopUser(self):
         engine = create_engine(self.dburl)
         conn = engine.connect()
@@ -88,7 +87,7 @@ class cooperativeModel:
             WHERE id = :id
         """
         result = conn.execute(
-            text(sql).execution_options(autocommit=True),
+            text(sql).execution_options(autocommit=self.autoCommit),
             params
         )
         records = result.fetchone()
@@ -112,7 +111,7 @@ class cooperativeModel:
 
             """
             result = self.conn.execute(
-                text(sql).execution_options(autocommit=True),
+                text(sql).execution_options(autocommit=self.autoCommit),
                 params
             )
             result = result.rowcount
@@ -126,7 +125,7 @@ class cooperativeModel:
             if (self.isLocalConnect):
                 self.close()
         return result
-        
+
 
     def insertAccountTransactionCoop(self):
         if (self.conn is None):
@@ -143,7 +142,7 @@ class cooperativeModel:
                 VALUES ('dec',:dest_id,'1',:amount,:dest_before_balance,NOW(),CONCAT('ถูกหักเนื่องจากสมาชิก',:citizenId,'เสียชีวิต'))
             """
             result = self.conn.execute(
-                text(sql).execution_options(autocommit=True),
+                text(sql).execution_options(autocommit=self.autoCommit),
                 params
             )
             result = result.lastrowid
@@ -171,7 +170,7 @@ class cooperativeModel:
                 WHERE user_id = :id
             """
             result = self.conn.execute(
-                text(sql).execution_options(autocommit=True),
+                text(sql).execution_options(autocommit=self.autoCommit),
                 params
             )
             result = result.rowcount
@@ -199,7 +198,7 @@ class cooperativeModel:
                 WHERE id = :id
             """
             result = self.conn.execute(
-                text(sql).execution_options(autocommit=True),
+                text(sql).execution_options(autocommit=self.autoCommit),
                 params
             )
             result = result.rowcount
