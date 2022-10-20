@@ -39,6 +39,7 @@ class MainProcess:
                 ).listCoop()
             citizenList = []
             nameList = []
+            issueList = []
             for data in allList:
                 self.connect()
                 if data['user_id'] is None:
@@ -55,13 +56,13 @@ class MainProcess:
                     ).getUserCoop()
                 citizenList.append(user['personal_id'])
                 nameList.append(user['first_name'] + " " + user['last_name'])
-                services.cooperativeService(
+                deduct = services.cooperativeService(
                     conn=self.conn,
                     dburl = config.Config.COOPERATIVE_DB_URL,
                     coopAccountId = data['id'],
                     fee = self.fee
                     ).deduct()
-                services.cooperativeService(
+                accountTransaction =services.cooperativeService(
                     conn=self.conn,
                     dburl = config.Config.COOPERATIVE_DB_URL,
                     coopAccountId = data['id'],
@@ -69,6 +70,9 @@ class MainProcess:
                     dest_before_balance = data['balance'],
                     citizenId = self.citizenId
                     ).accountTransaction()
+                if not deduct:
+                    issueList.append(data['user_id'])
+                self.trans.commit()
                 self.close()
             count = len(allList)
             coopFund = balanceInAccount + (count * self.fee)
@@ -79,9 +83,11 @@ class MainProcess:
                 }]
             df1 = pd.DataFrame(infomation)
             df2 = pd.DataFrame({'รหัสบัตรประชาชนสมาชิกที่ถูกหักเงิน':citizenList,'ชื่อ-นามสกุล':nameList})
+            df3 = pd.DataFrame({'สมาชิกที่มีปัญหาในการหักเงิน':issueList})
             with pd.ExcelWriter('{}/excels/{}.xlsx'.format(basepath,str(self.citizenId) + "-" + str(self.today))) as writer:  
                 df1.to_excel(writer, sheet_name='Sheet_name_1',index=False)
                 df2.to_excel(writer, sheet_name='Sheet_name_2',index=False)
+                df3.to_excel(writer, sheet_name='Sheet_name_3',index=False)
             services.cooperativeService(
                 dburl = config.Config.COOPERATIVE_DB_URL,
                 coopUserId = coopUserId

@@ -38,15 +38,16 @@ class cooperativeService:
         return allList
 
     def deduct(self):
-        models.cooperativeModel(
+        result = models.cooperativeModel(
             conn=self.conn,
             dburl=self.dburl,
             coopAccountId = self.coopAccountId,
             fee = self.fee  
         ).updateAccountCoop()
+        return result
 
     def accountTransaction(self):
-        models.cooperativeModel(
+        result = models.cooperativeModel(
             conn=self.conn,
             dburl=self.dburl,
             coopAccountId = self.coopAccountId,
@@ -54,6 +55,7 @@ class cooperativeService:
             dest_before_balance = self.dest_before_balance,
             citizenId = self.citizenId
         ).insertAccountTransactionCoop()
+        return result
 
     def closeAccount(self):
         models.cooperativeModel(

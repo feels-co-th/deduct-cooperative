@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, text
 import datetime
 
 class cooperativeModel:
+    isLocalConnect = False
     def __init__(self, **kwargs):
         self.dburl = kwargs.get("dburl")
         self.fee = kwargs.get("fee")
@@ -32,18 +33,18 @@ class cooperativeModel:
             'personal_id': self.citizenId
         }
         sql = """
-            SELECT * 
+            SELECT *
             FROM punsook_cooperative.account
             WHERE user_id =
 
             (
             SELECT id
             FROM punsook_cooperative.user
-            WHERE personal_id = :personal_id 
+            WHERE personal_id = :personal_id
             AND status = 'enable'
             )
 
-            AND account_type = 2 
+            AND account_type = 2
             AND status = 'enable'
         """
         result = conn.execute(
@@ -61,12 +62,11 @@ class cooperativeModel:
             'fee':self.fee
         }
         sql = """
-            SELECT * 
+            SELECT *
             FROM punsook_cooperative.account
             WHERE id != :id
-            AND account_type = 2 
-            AND status = 'enable' 
-            AND balance > :fee
+            AND account_type = 2
+            AND status = 'enable'
         """
         result = conn.execute(
             text(sql).execution_options(autocommit=self.autoCommit),
@@ -82,7 +82,7 @@ class cooperativeModel:
             'id': self.userId
         }
         sql = """
-            SELECT * 
+            SELECT *
             FROM punsook_cooperative.user
             WHERE id = :id
         """
@@ -105,10 +105,8 @@ class cooperativeModel:
                 UPDATE punsook_cooperative.account
                 SET balance = balance - :fee
                 WHERE id = :id
-                AND account_type = 2 
-                AND status = 'enable' 
-                AND balance > :fee
-
+                AND account_type = 2
+                AND status = 'enable'
             """
             result = self.conn.execute(
                 text(sql).execution_options(autocommit=self.autoCommit),
