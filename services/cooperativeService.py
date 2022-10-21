@@ -58,9 +58,13 @@ class cooperativeService:
         return result
 
     def closeAccount(self):
-        models.cooperativeModel(
+        closeAcc = models.cooperativeModel(
+            conn=self.conn,
             dburl=self.dburl,
             coopUserId = self.coopUserId).closeAccountCoop()
-        models.cooperativeModel(
+        closeUser = models.cooperativeModel(
+            conn=self.conn,
             dburl=self.dburl,
             coopUserId = self.coopUserId).closeUserCoop()
+        return closeAcc,closeUser
+        

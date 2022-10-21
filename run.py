@@ -1,3 +1,4 @@
+from fileinput import close
 from sqlalchemy import create_engine,column
 import config, datetime, os, services, pandas as pd 
 basepath = os.getcwd()
@@ -39,7 +40,8 @@ class MainProcess:
                 ).listCoop()
             citizenList = []
             nameList = []
-            issueList = []
+            issueDeductList = []
+            issueTransactionList = []
             for data in allList:
                 self.connect()
                 if data['user_id'] is None:
@@ -71,7 +73,15 @@ class MainProcess:
                     citizenId = self.citizenId
                     ).accountTransaction()
                 if not deduct:
-                    issueList.append(data['user_id'])
+                    issueDeductList.append(data['user_id'])
+                if not accountTransaction:
+                    issueTransactionList.append(data['user_id'])
+                if data == allList[0]:
+                    closeAcc,closeUser = services.cooperativeService(
+                    conn=self.conn,
+                    dburl = config.Config.COOPERATIVE_DB_URL,
+                    coopUserId = coopUserId
+                    ).closeAccount()                   
                 self.trans.commit()
                 self.close()
             count = len(allList)
@@ -83,15 +93,11 @@ class MainProcess:
                 }]
             df1 = pd.DataFrame(infomation)
             df2 = pd.DataFrame({'รหัสบัตรประชาชนสมาชิกที่ถูกหักเงิน':citizenList,'ชื่อ-นามสกุล':nameList})
-            df3 = pd.DataFrame({'สมาชิกที่มีปัญหาในการหักเงิน':issueList})
+            df3 = pd.DataFrame({'สมาชิกที่มีปัญหาในการหักเงิน':issueDeductList,'สมาชิกที่มีปัญหาเกี่ยวกับTransaction':issueTransactionList})
             with pd.ExcelWriter('{}/excels/{}.xlsx'.format(basepath,str(self.citizenId) + "-" + str(self.today))) as writer:  
                 df1.to_excel(writer, sheet_name='Sheet_name_1',index=False)
                 df2.to_excel(writer, sheet_name='Sheet_name_2',index=False)
                 df3.to_excel(writer, sheet_name='Sheet_name_3',index=False)
-            services.cooperativeService(
-                dburl = config.Config.COOPERATIVE_DB_URL,
-                coopUserId = coopUserId
-                ).closeAccount()
             print("complete",datetime.datetime.now())
 if __name__ == "__main__":
     MainProcess().process()
