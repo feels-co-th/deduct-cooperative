@@ -77,7 +77,7 @@ class MainProcess:
                 if not accountTransaction:
                     issueTransactionList.append(data['user_id'])
                 if data == allList[0]:
-                    closeAcc,closeUser = services.cooperativeService(
+                    services.cooperativeService(
                     conn=self.conn,
                     dburl = config.Config.COOPERATIVE_DB_URL,
                     coopUserId = coopUserId
