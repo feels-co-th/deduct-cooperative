@@ -1,5 +1,3 @@
-from pyexpat import model
-from sqlalchemy import create_engine, text
 import models
 
 
@@ -16,22 +14,22 @@ class cooperativeService:
 
     def getIdAccountCoop(self):
         records = models.cooperativeModel(
-            dburl=self.dburl,
-            citizenId=self.citizenId
+            dburl = self.dburl,
+            citizenId = self.citizenId
         ).getIdAccountCoop()
         return records
 
     def getUserCoop(self):
         records = models.cooperativeModel(
-            conn=self.conn,
-            dburl=self.dburl,
-            userId=self.userId
+            conn = self.conn,
+            dburl = self.dburl,
+            userId = self.userId
         ).getCoopUser()
         return records
 
     def listCoop(self):
         allList = models.cooperativeModel(
-            dburl=self.dburl,
+            dburl = self.dburl,
             coopAccountId = self.coopAccountId,
             fee = self.fee
         ).getAllCoopAccount()
@@ -39,17 +37,17 @@ class cooperativeService:
 
     def deduct(self):
         result = models.cooperativeModel(
-            conn=self.conn,
-            dburl=self.dburl,
+            conn = self.conn,
+            dburl = self.dburl,
             coopAccountId = self.coopAccountId,
-            fee = self.fee  
+            fee = self.fee
         ).updateAccountCoop()
         return result
 
     def accountTransaction(self):
         result = models.cooperativeModel(
-            conn=self.conn,
-            dburl=self.dburl,
+            conn = self.conn,
+            dburl = self.dburl,
             coopAccountId = self.coopAccountId,
             fee = self.fee,
             dest_before_balance = self.dest_before_balance,
@@ -59,12 +57,13 @@ class cooperativeService:
 
     def closeAccount(self):
         closeAcc = models.cooperativeModel(
-            conn=self.conn,
-            dburl=self.dburl,
-            coopUserId = self.coopUserId).closeAccountCoop()
+            conn = self.conn,
+            dburl = self.dburl,
+            coopUserId = self.coopUserId
+        ).closeAccountCoop()
         closeUser = models.cooperativeModel(
-            conn=self.conn,
-            dburl=self.dburl,
-            coopUserId = self.coopUserId).closeUserCoop()
+            conn = self.conn,
+            dburl = self.dburl,
+            coopUserId = self.coopUserId
+        ).closeUserCoop()
         return closeAcc,closeUser
-        

@@ -30,20 +30,18 @@ class cooperativeModel:
         engine = create_engine(self.dburl)
         conn = engine.connect()
         params = {
-            'personal_id': self.citizenId
+            'personal_id' : self.citizenId
         }
         sql = """
             SELECT *
             FROM punsook_cooperative.account
             WHERE user_id =
-
             (
             SELECT id
             FROM punsook_cooperative.user
             WHERE personal_id = :personal_id
             AND status = 'enable'
             )
-
             AND account_type = 2
             AND status = 'enable'
         """
@@ -53,13 +51,13 @@ class cooperativeModel:
         )
         records = result.fetchone()
         return records
-    
+
     def getAllCoopAccount(self):
         engine = create_engine(self.dburl)
         conn = engine.connect()
         params = {
-            'id': self.coopAccountId,
-            'fee':self.fee
+            'id' : self.coopAccountId,
+            'fee' : self.fee
         }
         sql = """
             SELECT *
@@ -79,7 +77,7 @@ class cooperativeModel:
         engine = create_engine(self.dburl)
         conn = engine.connect()
         params = {
-            'id': self.userId
+            'id' : self.userId
         }
         sql = """
             SELECT *
@@ -98,8 +96,8 @@ class cooperativeModel:
             self.connect()
         try:
             params = {
-                'id': self.coopAccountId,
-                'fee': float(self.fee)
+                'id' : self.coopAccountId,
+                'fee' : float(self.fee)
             }
             sql = """
                 UPDATE punsook_cooperative.account
@@ -124,20 +122,19 @@ class cooperativeModel:
                 self.close()
         return result
 
-
     def insertAccountTransactionCoop(self):
         if (self.conn is None):
             self.connect()
         try:
             params = {
-                'dest_id': self.coopAccountId,
-                'amount': self.fee,
-                'dest_before_balance': self.dest_before_balance,
+                'dest_id' : self.coopAccountId,
+                'amount' : self.fee,
+                'dest_before_balance' : self.dest_before_balance,
                 'citizenId' : self.citizenId
             }
             sql = """
                 INSERT INTO punsook_cooperative.account_transaction (trans_type,dest_id,ratio,amount,dest_before_balance,created_date,remark)
-                VALUES ('dec',:dest_id,'1',:amount,:dest_before_balance,NOW(),CONCAT('ถูกหักเนื่องจากสมาชิก',:citizenId,'เสียชีวิต'))
+                VALUES ('dec',:dest_id,'1',:amount,:dest_before_balance,NOW(),CONCAT('ถูกหักเนื่องจากสมาชิก ',:citizenId,' เสียชีวิต'))
             """
             result = self.conn.execute(
                 text(sql).execution_options(autocommit=self.autoCommit),
@@ -160,7 +157,7 @@ class cooperativeModel:
             self.connect()
         try:
             params = {
-                'id': self.coopUserId
+                'id' : self.coopUserId
             }
             sql = """
                 UPDATE punsook_cooperative.account
@@ -188,7 +185,7 @@ class cooperativeModel:
             self.connect()
         try:
             params = {
-                'id': self.coopUserId
+                'id' : self.coopUserId
             }
             sql = """
                 UPDATE punsook_cooperative.user
