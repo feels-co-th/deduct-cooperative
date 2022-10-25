@@ -5,9 +5,13 @@ basepath = os.getcwd()
 
 class MainProcess:
     def __init__(self):
-        self.citizenId = "3100501312521"
+        self.citizenId = "3341501538901"
         self.fee = 20
         self.List = []
+        self.citizenList = []
+        self.nameList = []
+        self.issueList = []
+        self.count = 0
         self.today = datetime.date.today()
         self.dburl = config.Config.COOPERATIVE_DB_URL
 
@@ -38,12 +42,6 @@ class MainProcess:
                 coopAccountId = coopAccountId,
                 fee = self.fee
             ).listCoop()
-            citizenList = []
-            nameList = []
-            issueList = []
-            # issueDeductList = []
-            # issueTransactionList = []
-            count = 0
             coopFund = balanceInAccount
             for data in allList:
                 try:
@@ -74,45 +72,35 @@ class MainProcess:
                         dest_before_balance = data['balance'],
                         citizenId = self.citizenId
                     ).accountTransaction()
-                    # if not deduct:
-                    #     issueDeductList.append(data['user_id'])
-                    # if not accountTransaction:
-                    #     issueTransactionList.append(data['user_id'])
-                    if count + 1 == len(allList):
+                    if self.count + 1 == len(allList):
                         services.cooperativeService(
                             conn = self.conn,
                             dburl = config.Config.COOPERATIVE_DB_URL,
                             coopUserId = coopUserId
                         ).closeAccount()
                     self.trans.commit()
-                    citizenList.append(user['personal_id'])
-                    nameList.append(user['first_name'] + " " + user['last_name'])
-                    count += 1
+                    self.citizenList.append(user['personal_id'])
+                    self.nameList.append(user['first_name'] + " " + user['last_name'])
+                    self.count += 1
                     coopFund += self.fee
                     self.close()
                 except Exception as error:
                     # print(error)
                     self.trans.rollback()
-                    issueList.append(data['user_id'])
-            # if len(issueList) == 0:
-            #     services.cooperativeService(
-            #         dburl = config.Config.COOPERATIVE_DB_URL,
-            #         coopUserId = coopUserId
-            #     ).closeAccount()
+                    self.issueList.append(data['user_id'])
             infomation = [
                 {
                     'รหัสบัตรประชาชนผูัเสียชีวืต' : self.citizenId,
                     'จำนวนกองทุนที่ได้รับ' : coopFund,
-                    'จำนวนสมาชิกที่ถูกหักเงิน' : count
+                    'จำนวนสมาชิกที่ถูกหักเงิน' : self.count
                 }
             ]
             deductDetail = {
-                'รหัสบัตรประชาชนสมาชิกที่ถูกหักเงิน' : citizenList,
-                'ชื่อ-นามสกุล' : nameList
+                'รหัสบัตรประชาชนสมาชิกที่ถูกหักเงิน' : self.citizenList,
+                'ชื่อ-นามสกุล' : self.nameList
             }
             issueDetail = {
-                'สมาชิกที่มีปัญหาในการหักเงิน' : issueList,
-                # 'สมาชิกที่มีปัญหาเกี่ยวกับ Transaction' : issueTransactionList
+                'สมาชิกที่มีปัญหาในการหักเงิน' : self.issueList
             }
             df1 = pd.DataFrame(infomation)
             df2 = pd.DataFrame(deductDetail)

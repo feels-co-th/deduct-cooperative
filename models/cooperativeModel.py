@@ -189,7 +189,8 @@ class cooperativeModel:
             }
             sql = """
                 UPDATE punsook_cooperative.user
-                SET status = 'disable'
+                SET status = 'disable',
+                death_date = NOW()
                 WHERE id = :id
             """
             result = self.conn.execute(
